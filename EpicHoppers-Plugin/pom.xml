@@ -133,14 +133,14 @@
         <dependency>
             <groupId>com.songoda</groupId>
             <artifactId>FabledSkyBlock</artifactId>
-            <version>4.0.0</version>
+            <version>4.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.songoda</groupId>
             <artifactId>EpicFarming</artifactId>
-            <version>5.0.0</version>
+            <version>5.0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
