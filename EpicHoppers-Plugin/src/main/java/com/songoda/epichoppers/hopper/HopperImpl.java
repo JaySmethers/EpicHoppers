@@ -1,15 +1,14 @@
 package com.songoda.epichoppers.hopper;
 
 import com.songoda.core.SongodaPlugin;
-import com.songoda.core.compatibility.CompatibleParticleHandler;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.database.Data;
 import com.songoda.core.database.DataManager;
 import com.songoda.core.database.SerializedLocation;
 import com.songoda.core.hooks.EconomyManager;
 import com.songoda.third_party.com.cryptomorin.xseries.XSound;
+import com.songoda.third_party.com.cryptomorin.xseries.particles.XParticle;
 import com.songoda.third_party.org.jooq.impl.DSL;
-import com.songoda.core.utils.ItemUtils;
 import com.songoda.epichoppers.EpicHoppers;
 import com.songoda.epichoppers.EpicHoppersApi;
 import com.songoda.epichoppers.api.events.HopperAccessEvent;
@@ -21,11 +20,7 @@ import com.songoda.epichoppers.utils.CostType;
 import com.songoda.epichoppers.utils.DataHelper;
 import com.songoda.epichoppers.utils.Methods;
 import com.songoda.epichoppers.hopper.teleport.TeleportTrigger;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -37,13 +32,7 @@ import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * FIXME: Needs heavy refactoring to only have one responsibility.
@@ -227,9 +216,16 @@ public class HopperImpl implements Hopper {
         Location loc = this.location.clone().add(.5, .5, .5);
 
         if (!getUpgradeParticleType().trim().isEmpty()) {
-            CompatibleParticleHandler.spawnParticles(
-                    CompatibleParticleHandler.ParticleType.getParticle(getUpgradeParticleType()),
-                    loc, 100, .5, .5, .5);
+            String particleType = getUpgradeParticleType();
+            Optional<XParticle> xParticleOpt = XParticle.of(particleType);
+            if (xParticleOpt.isPresent()) {
+                Particle bukkitParticle = xParticleOpt.get().get();
+                loc.getWorld().spawnParticle(bukkitParticle, loc, 100, 0.5, 0.5, 0.5, 0);
+            } else {
+                // Fallback Particle
+                getPlugin().getLogger().warning("Invalid Upgrade particle type in config: " + particleType + ". Using fallback particle.");
+                loc.getWorld().spawnParticle(XParticle.FLAME.get(), loc, 100, 0.5, 0.5, 0.5, 0);
+            }
         }
 
         if (getLevelManager().getHighestLevel() != level) {

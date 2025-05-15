@@ -2,7 +2,6 @@ package com.songoda.epichoppers.hopper.levels.modules;
 
 import com.bgsoftware.wildstacker.api.WildStackerAPI;
 import com.songoda.core.SongodaPlugin;
-import com.songoda.core.compatibility.CompatibleParticleHandler;
 import com.songoda.core.gui.GuiManager;
 import com.songoda.core.locale.Locale;
 import com.songoda.third_party.com.cryptomorin.xseries.XMaterial;
@@ -11,6 +10,7 @@ import com.songoda.epichoppers.hopper.Hopper;
 import com.songoda.epichoppers.settings.Settings;
 import com.songoda.epichoppers.utils.Methods;
 import com.songoda.epichoppers.utils.StorageContainerCache;
+import com.songoda.third_party.com.cryptomorin.xseries.particles.XParticle;
 import com.songoda.ultimatestacker.api.UltimateStackerApi;
 import dev.rosewood.rosestacker.api.RoseStackerAPI;
 import dev.rosewood.rosestacker.stack.StackedItem;
@@ -153,8 +153,7 @@ public class ModuleSuction extends Module {
             float xx = (float) (0 + (Math.random() * .1));
             float yy = (float) (0 + (Math.random() * .1));
             float zz = (float) (0 + (Math.random() * .1));
-            CompatibleParticleHandler.spawnParticles(CompatibleParticleHandler.ParticleType.FLAME,
-                    item.getLocation(), 5, xx, yy, zz);
+            item.getWorld().spawnParticle(XParticle.FLAME.get(), item.getLocation(), 5, xx, yy, zz, 0);
         }
     }
 

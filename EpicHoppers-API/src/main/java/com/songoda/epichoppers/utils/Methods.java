@@ -3,13 +3,17 @@ package com.songoda.epichoppers.utils;
 import com.songoda.core.SongodaPlugin;
 import com.songoda.core.compatibility.ServerVersion;
 import com.songoda.core.utils.TextUtils;
+import com.songoda.third_party.com.cryptomorin.xseries.particles.XParticle;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.ApiStatus;
+
+import java.util.Optional;
 
 @ApiStatus.Internal
 public class Methods {
@@ -90,7 +94,18 @@ public class Methods {
         location.setX(location.getX() + .5);
         location.setY(location.getY() + .5);
         location.setZ(location.getZ() + .5);
-        entity.getWorld().spawnParticle(org.bukkit.Particle.valueOf(getPlugin().getConfig().getString("Main.Upgrade Particle Type")), location, 200, .5, .5, .5);
+        String configParticleType = getPlugin().getConfig().getString("Main.Upgrade Particle Type");
+        if (configParticleType != null && !configParticleType.trim().isEmpty()) {
+            Optional<XParticle> xParticleOpt = XParticle.of(configParticleType);
+            if (xParticleOpt.isPresent()) {
+                Particle bukkitParticle = xParticleOpt.get().get();
+                entity.getWorld().spawnParticle(bukkitParticle, location, 200, .5, .5, .5, 0);
+            } else {
+                // Fallback particle
+                getPlugin().getLogger().warning("Invalid Upgrade particle type in config: " + configParticleType+ ". Using fallback particle.");
+                entity.getWorld().spawnParticle(XParticle.FLAME.get(), location, 200, .5, .5, .5, 0);
+            }
+        }
     }
 
     /**

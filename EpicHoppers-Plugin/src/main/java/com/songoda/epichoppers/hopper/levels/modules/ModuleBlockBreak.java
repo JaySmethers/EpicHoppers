@@ -9,6 +9,7 @@ import com.songoda.epichoppers.hopper.Hopper;
 import com.songoda.epichoppers.settings.Settings;
 import com.songoda.epichoppers.EpicHoppersApi;
 import com.songoda.epichoppers.utils.StorageContainerCache;
+import com.songoda.third_party.com.cryptomorin.xseries.particles.XParticle;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
@@ -19,10 +20,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
@@ -98,17 +96,22 @@ public class ModuleBlockBreak extends Module {
             float yy = (float) (0 + (Math.random() * .5));
             float zz = (float) (0 + (Math.random() * .5));
 
-            Particle particle = null;
+            Particle bukkitParticle = null;
             if (!Settings.BLOCKBREAK_PARTICLE.getString().trim().isEmpty()) {
-                try {
-                    particle = Particle.valueOf(Settings.BLOCKBREAK_PARTICLE.getString());
-                } catch (Exception ignore) {
-                    particle = Particle.LAVA;
+                String particleType = Settings.BLOCKBREAK_PARTICLE.getString();
+                Optional<XParticle> xParticleOpt = XParticle.of(particleType);
+
+                if (xParticleOpt.isPresent()) {
+                    bukkitParticle = xParticleOpt.get().get();
+                } else {
+                    // Fallback Particle
+                    plugin.getLogger().warning("Invalid BlockBreak particle type in config: " + particleType + ". Using fallback particle.");
+                    bukkitParticle = XParticle.LAVA.get();
                 }
             }
 
-            if (particle != null) {
-                above.getWorld().spawnParticle(particle, locationAbove, 15, xx, yy, zz);
+            if (bukkitParticle != null) {
+                above.getWorld().spawnParticle(bukkitParticle, locationAbove, 15, xx, yy, zz, 0);
             }
         }
 
@@ -178,4 +181,6 @@ public class ModuleBlockBreak extends Module {
         }
         return enabled;
     }
+
+
 }
